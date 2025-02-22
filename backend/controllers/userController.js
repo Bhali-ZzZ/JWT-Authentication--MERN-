@@ -1,19 +1,23 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import userModel from '../models/userModel.js'
+import {v2 as cloudinary} from 'cloudinary'
 
 const register = async (req,res)=>{
-
-    const {name , email , password , number , location} = req.body
+    
 
     try {
+
+        const {name , email , password , number , location} = req.body
+        const image = req.file
+        const imageUpload = await cloudinary.uploader.upload(image.path,{resource_type:"image"})
 
         const isExist = await userModel.findOne({email})
         if(isExist){
             return res.json({success:false , message:"User already exist!"})
         }
 
-        if(!name || !email || !password || !number || !location){
+        if(!name || !email || !password || !image || !number || !location){
             return res.json({success:false , message:"Information missing!"})
         }
 
@@ -25,6 +29,7 @@ const register = async (req,res)=>{
             name,
             email,
             password:hashedPassword,
+            image:imageUpload.secure_url,
             number,
             location
         })

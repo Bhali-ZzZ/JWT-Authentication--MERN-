@@ -13,7 +13,7 @@ const Hero = () => {
       <div className="max-w-90 sm:w-96 bg-white rounded-3xl shadow-lg p-6">
        <div className='flex justify-between py-3'>
         <div className='flex items-center'>
-        <img className='w-20' src={assets.profileLogo} alt=''/>
+        <img className='w-12 h-12 rounded-full mr-3' src={userData ? userData.image : assets.profileLogo} alt=''/>
         <div className='flex flex-col'>
         <p>{userData ? userData.name : 'Your Name'}</p>
         <p>{userData ? userData.email : 'yourmail@gmail.com'}</p>

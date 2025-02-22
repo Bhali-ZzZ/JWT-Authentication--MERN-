@@ -5,6 +5,7 @@ import 'dotenv/config'
 import connectDB from './config/db.js'
 import userRouter from './routes/userRoute.js'
 import dataRouter from './routes/dataRoute.js'
+import connectCloudinary from './config/cloudinary.js'
 
 const app = express()
 const port = process.env.PORT
@@ -18,6 +19,7 @@ app.use(cors({
 }))
 
 connectDB()
+connectCloudinary()
 
 
 app.use(cookieParser())

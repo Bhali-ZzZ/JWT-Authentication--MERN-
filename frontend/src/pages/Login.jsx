@@ -13,54 +13,68 @@ const Login = () => {
     const {backendURL , setIsLoggedIn , getUserData} = useContext(UserContext)
 
 
+    const [image , setImage] = useState(false)
+
+
     const [name , setName] = useState('')
     const [email , setEmail] = useState('')
     const [password , setPassword] = useState('')
     const [number , setNumber] = useState('')
     const [location , setLocation] = useState('')
 
-    const submitHander = async (e)=>{
-      e.preventDefault()
+    const submitHandler = async (e) => {
+      e.preventDefault();
       try {
-      if(state == 'register'){
-        const response = await axios.post(backendURL + '/api/user/register',{
-          name,email,password,number,location
-        },{withCredentials:true})
-
-        if(response.data.success){
-          toast.success("User Registered!")
-          setIsLoggedIn(true)
-          getUserData()
-          navigate('/')
-        }else{
-          toast.error(response.data.message)
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("email", email);
+        formData.append("password", password);
+        formData.append("number", number);
+        formData.append("location", location);
+        if (image) {
+          formData.append("image", image); // Append image file
         }
-      }else if(state == 'login'){
-        const response = await axios.post(backendURL + '/api/user/login',{
-          email,password
-        },{withCredentials:true})
-
-        if(response.data.success){
-          toast.success("Login successfully!")
-          setIsLoggedIn(true)
-          getUserData()
-          navigate('/')
-        }else{
-          toast.error(response.data.message)
+    
+        let response;
+        if (state === "register") {
+          response = await axios.post(backendURL + "/api/user/register", formData, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data", // Ensure correct headers for file upload
+            },
+          });
+        } else {
+          response = await axios.post(
+            backendURL + "/api/user/login",
+            { email, password },
+            { withCredentials: true }
+          );
         }
-      }
+    
+        if (response.data.success) {
+          toast.success(state === "register" ? "User Registered!" : "Login successful!");
+          setIsLoggedIn(true);
+          getUserData();
+          navigate("/");
+        } else {
+          toast.error(response.data.message);
+        }
       } catch (error) {
-        toast.error(error.message)
+        toast.error(error.response?.data?.message || error.message);
       }
-    }
+    };
+    
 
   return (
     <div className='flex items-center justify-center py-20 bg-blue-500'>
       <div className='flex flex-col gap-3 max-w-90 sm:w-96 bg-white rounded-3xl shadow-lg p-6'>
         <p className='font-bold text-normal text-center sm:text-xl'>{state != 'login' ? 'Registration Your Account' : 'Login Your Account'}</p>
-        <form onSubmit={submitHander}>
+        <form onSubmit={submitHandler}>
         <div className={`flex items-center flex-col w-full mx-auto ${state == 'login' ? 'hidden' : 'flex'}`}>
-        <img className='w-24 cursor-pointer' src={assets.profileLogo} alt=''/>
+        <input onChange={(e)=>setImage(e.target.files[0])} type='file' id='image' accept='image/*' hidden/>
+                <label htmlFor='image'>
+                    <img className='w-24 cursor-pointer' src={image ? URL.createObjectURL(image) : assets.profileLogo} alt=''/>
+                </label>
         <p className='text-gray-800'>Add Image</p>
         </div>
             <div className={`flex-col gap-1 items-start ${state == 'login' ? 'hidden' : 'flex'}`}>
